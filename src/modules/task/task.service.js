@@ -1,9 +1,102 @@
 import { prisma } from "../../config/prisma.js";
 
-const createTask = async (userId, titulo, decricao, prioridade, dataLimite) => {};
-const getTasks = async (userId) => {};
-const getTaskById = async (userId, taskId) => {};
-const updateTask = async (userId, taskId, titulo, descricao, prioridade, dataLimite, status) => {};
-const deleteTask = async (userId, taskId) => {};
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import { ForbiddenError } from "../../errors/ForbiddenError.js";
+import { ConflictError } from "../../errors/ConflictError.js";
+
+const createTask = async (userId, titulo, decricao, prioridade, dataLimite) => {
+    const newTask = await prisma.task.create({
+        data: {
+            userId,
+            titulo,
+            decricao,
+            prioridade,
+            dataLimite
+        }
+    });
+
+    return newTask;
+};
+const getTasks = async (userId) => {
+    const tasks = await prisma.task.findMany({
+        where: {
+            userId, ativo: true
+        }
+    });
+
+    return tasks;
+};
+const getTaskById = async (userId, taskId) => {
+    const task = await prisma.task.findUnique({
+        where: {
+            id: taskId, ativo: true
+        }
+    });
+
+    if (!task)
+        throw new NotFoundError('Task not found');
+
+    if (task.userId !== userId)
+        throw new ForbiddenError('You do not have permission to access this task');
+
+    return task;
+};
+const updateTask = async (userId, taskId, titulo, descricao, prioridade, dataLimite, status) => {
+    const task = await prisma.task.findUnique({
+        where: {
+            id: taskId, ativo: true
+        }
+    });
+
+    if (!task)
+        throw new NotFoundError('Task not found');
+
+    if (task.userId !== userId)
+        throw new ForbiddenError('You do not have permission to access this task');
+
+    // regra de negócio
+    if (task.status === "CONCLUIDA") {
+        throw new ConflictError("Completed tasks cannot be updated");
+    }
+
+    return await prisma.task.update({
+        where: { id: taskId },
+        data: {
+            titulo,
+            descricao,
+            prioridade,
+            dataLimite,
+            status
+        }
+    })
+};
+const deleteTask = async (userId, taskId) => {
+    const task = await prisma.task.findUnique({
+        where: {
+            id: taskId
+        }
+    });
+
+    if (!task)
+        throw new NotFoundError('Task not found');
+
+    // 🔐 ownership validation
+    if (task.userId !== userId) {
+        throw new ForbiddenError("You do not own this task");
+    }
+
+    // regra de negócio
+    if (task.status === "CONCLUIDA") {
+        throw new ConflictError("Completed tasks cannot be updated");
+    }
+
+    // soft delete
+    return await prisma.task.update({
+        where: { id: taskId },
+        data: {
+            ativo: false
+        }
+    })
+};
 
 export default { createTask, getTasks, getTaskById, updateTask, deleteTask }
