@@ -13,10 +13,39 @@ datasource db {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  nome    String?
-  senha   String
-  data_criacao  DateTime   @default(now())
-  ativo  Boolean    @default(true)
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  nome         String?
+  senha        String
+  data_criacao DateTime @default(now())
+  ativo        Boolean  @default(true)
+  tasks        Task[]
+}
+
+model Task {
+  id          Int          @id @default(autoincrement())
+  titulo      String
+  descricao   String
+  status      TaskStatus   @default(PENDENTE)
+  prioridade  TaskPriority
+  data_limite DateTime?
+  ativo       Boolean
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TaskStatus {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+}
+
+enum TaskPriority {
+  BAIXA
+  MEDIA
+  ALTA
 }

@@ -3,7 +3,7 @@ import { BadRequestError } from '../../errors/BadRequestError.js';
 
 export async function index(req, res, next) {
     try {
-        const userId = req.query.userId;
+        const userId = req.user.id;
         
         if (!userId)
             throw new BadRequestError('User ID é orbigatório!');
@@ -18,7 +18,8 @@ export async function index(req, res, next) {
 
 export async function show(req, res, next) {
     try {
-        const { userId, taskId } = req.query
+        const userId = req.user.id;
+        const { taskId } = req.query
  
         if (!userId)
             throw new BadRequestError('User ID é orbigatório!');
@@ -36,7 +37,8 @@ export async function show(req, res, next) {
 
 export async function store(req, res, next) {
     try {
-        const { userId, titulo, descricao, prioridade } = req.body;
+        const userId = req.user.id;
+        const { titulo, descricao, prioridade, dataLimite } = req.body;
         
         if (!userId)
             throw new BadRequestError('User ID é orbigatório!');
@@ -50,7 +52,7 @@ export async function store(req, res, next) {
         if (!prioridade)     
             throw new BadRequestError('Prioridade é orbigatório!');
 
-        const newTask = await createTask(userId, titulo, descricao, prioridade);
+        const newTask = await createTask(userId, titulo, descricao, prioridade, dataLimite);
 
         res.status(201).json(newTask);    
     } catch (error) {
@@ -60,7 +62,8 @@ export async function store(req, res, next) {
 
 export async function update(req, res, next) {
     try {
-        const { userId, taskId, titulo, descricao, prioridade, status} = req.body;
+        const userId = req.user.id;
+        const { taskId, titulo, descricao, prioridade, dataLimite, status} = req.body;
         
         if (!userId)
             throw new BadRequestError('User ID é orbigatório!');
@@ -68,7 +71,7 @@ export async function update(req, res, next) {
         if (!taskId)
             throw new BadRequestError('Task ID é orbigatório!');
 
-        const updatedTask = await updateTaskById(userId, taskId, titulo, descricao, prioridade, status);
+        const updatedTask = await updateTaskById(userId, taskId, titulo, descricao, prioridade, dataLimite, status);
 
         res.status(200).json(updatedTask);
     } catch (error) {
@@ -78,7 +81,8 @@ export async function update(req, res, next) {
 
 export async function destroy(req, res, next) {
     try {
-        const { userId, taskId } = req.body;
+        const userId = req.user.id;
+        const { taskId } = req.body;
         
         if (!userId)
             throw new BadRequestError('User ID é orbigatório!');
@@ -87,7 +91,7 @@ export async function destroy(req, res, next) {
             throw new BadRequestError('Task ID é orbigatório!');
         
         await deleteTask(userId, taskId);
-        
+
         res.status(204).send();
     } catch (error) {
         next(error)
