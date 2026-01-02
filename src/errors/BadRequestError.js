@@ -1,7 +1,7 @@
-// src/errors/UnauthorizedError.js
+// src/errors/BadRequestError.js
 import { AppError } from "./AppError.js";
 
-export class UnauthorizedError extends AppError {
+export class BadRequestError extends AppError {
   constructor(message = "Bad Request") {
     super(message, 400, "BAD_REQUEST");
   }

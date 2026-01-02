@@ -1,5 +1,7 @@
 import authService from './auth.service.js'
 
+import { BadRequestError } from '../../errors/BadRequestError.js';
+
 export async function register(req, res, next) {
     try {
         const { email, senha, nome } = req.body

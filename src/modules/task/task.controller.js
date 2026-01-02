@@ -1,4 +1,4 @@
-import { getTasks, getTaskById, createTask, updateTaskById, deleteTask } from './task.service.js';
+import { getTasks, getTaskById, createTask, updateTask, deleteTask } from './task.service.js';
 import { BadRequestError } from '../../errors/BadRequestError.js';                                                                                                                                                                                                                                                                                                      
 
 export async function index(req, res, next) {
@@ -71,7 +71,7 @@ export async function update(req, res, next) {
         if (!taskId)
             throw new BadRequestError('Task ID é orbigatório!');
 
-        const updatedTask = await updateTaskById(userId, taskId, titulo, descricao, prioridade, dataLimite, status);
+        const updatedTask = await updateTask(userId, taskId, titulo, descricao, prioridade, dataLimite, status);
 
         res.status(200).json(updatedTask);
     } catch (error) {
