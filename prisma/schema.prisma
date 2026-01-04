@@ -10,6 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -25,7 +26,7 @@ model User {
 model Task {
   id          Int          @id @default(autoincrement())
   titulo      String
-  descricao   String
+  descricao   String?
   status      TaskStatus   @default(PENDENTE)
   prioridade  TaskPriority
   dataLimite DateTime?
