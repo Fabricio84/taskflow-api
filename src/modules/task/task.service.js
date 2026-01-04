@@ -86,13 +86,15 @@ const updateTask = async (userId, taskId, data) => {
         throw new ForbiddenError('You do not have permission to access this task');
 
     // regra de negócio
-    if (task.status === "CONCLUIDA") {
+    if (task.status === "CONCLUIDA") 
         throw new ConflictError("Completed tasks cannot be updated");
-    }
+    
+    const { titulo, descricao, prioridade, dataLimite, status } = data
+
 
     return await prisma.task.update({
         where: { id: taskId },
-        data: { ...data }
+        data: { titulo, descricao, prioridade, dataLimite, status }
     })
 };
 const deleteTask = async (userId, taskId) => {
