@@ -27,7 +27,7 @@ const getTasks = async (userId) => {
     return tasks;
 };
 const getTaskById = async (userId, taskId) => {
-    const task = await prisma.task.findUnique({
+    const task = await prisma.task.findFirst({
         where: {
             id: taskId, ativo: true
         }
@@ -42,7 +42,7 @@ const getTaskById = async (userId, taskId) => {
     return task;
 };
 const updateTask = async (userId, taskId, data) => {
-    const task = await prisma.task.findUnique({
+    const task = await prisma.task.findFirst({
         where: {
             id: taskId, ativo: true
         }
