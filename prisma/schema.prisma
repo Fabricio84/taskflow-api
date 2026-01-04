@@ -28,8 +28,8 @@ model Task {
   descricao   String
   status      TaskStatus   @default(PENDENTE)
   prioridade  TaskPriority
-  data_limite DateTime?
-  ativo       Boolean
+  dataLimite DateTime?
+  ativo       Boolean      @default(true)
 
   userId Int
   user   User @relation(fields: [userId], references: [id])

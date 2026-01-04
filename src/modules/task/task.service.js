@@ -4,12 +4,12 @@ import { NotFoundError } from "../../errors/NotFoundError.js";
 import { ForbiddenError } from "../../errors/ForbiddenError.js";
 import { ConflictError } from "../../errors/ConflictError.js";
 
-const createTask = async (userId, titulo, decricao, prioridade, dataLimite) => {
+const createTask = async (userId, titulo, descricao, prioridade, dataLimite) => {
     const newTask = await prisma.task.create({
         data: {
             userId,
             titulo,
-            decricao,
+            descricao,
             prioridade,
             dataLimite
         }
@@ -41,7 +41,7 @@ const getTaskById = async (userId, taskId) => {
 
     return task;
 };
-const updateTask = async (userId, taskId, titulo, descricao, prioridade, dataLimite, status) => {
+const updateTask = async (userId, taskId, data) => {
     const task = await prisma.task.findUnique({
         where: {
             id: taskId, ativo: true
@@ -61,13 +61,7 @@ const updateTask = async (userId, taskId, titulo, descricao, prioridade, dataLim
 
     return await prisma.task.update({
         where: { id: taskId },
-        data: {
-            titulo,
-            descricao,
-            prioridade,
-            dataLimite,
-            status
-        }
+        data: { ...data }
     })
 };
 const deleteTask = async (userId, taskId) => {
