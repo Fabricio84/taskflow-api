@@ -17,14 +17,45 @@ const createTask = async (userId, titulo, descricao, prioridade, dataLimite) => 
 
     return newTask;
 };
-const getTasks = async (userId) => {
-    const tasks = await prisma.task.findMany({
-        where: {
-            userId, ativo: true
-        }
-    });
+const listTasks = async (userId, { page, limit, filters }) => {
+    const skip = (page - 1) * limit;
 
-    return tasks;
+    const where = {
+        userId,
+        ativo: true,
+        ...(filters?.status ? { status: filters.status } : {}),
+        ...(filters?.prioridade ? { prioridade: filters.prioridade } : {}),
+    };
+
+    const [items, total] = await Promise.all([
+        prisma.task.findMany({
+            where,
+            orderBy: { createdAt: "desc" }, // ajuste se seu campo tiver outro nome
+            skip,
+            take: limit,
+            select: {
+                id: true,
+                titulo: true,
+                descricao: true,
+                status: true,
+                prioridade: true,
+                dataLimite: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        }),
+        prisma.task.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+        page,
+        limit,
+        total,
+        totalPages,
+        items,
+    };
 };
 const getTaskById = async (userId, taskId) => {
     const task = await prisma.task.findFirst({
@@ -93,4 +124,4 @@ const deleteTask = async (userId, taskId) => {
     })
 };
 
-export { createTask, getTasks, getTaskById, updateTask, deleteTask }
+export { createTask, listTasks, getTaskById, updateTask, deleteTask }

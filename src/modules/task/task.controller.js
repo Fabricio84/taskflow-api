@@ -1,16 +1,24 @@
-import { getTasks, getTaskById, createTask, updateTask, deleteTask } from './task.service.js';
+import { listTasks, getTaskById, createTask, updateTask, deleteTask } from './task.service.js';
 import { BadRequestError } from '../../errors/BadRequestError.js';
 
 export async function index(req, res, next) {
     try {
         const userId = req.user.id;
 
-        if (!userId)
-            throw new BadRequestError('User ID é orbigatório!');
+        const page = Number(req.query.page ?? 1);
+        const limit = Number(req.query.limit ?? 10);
 
-        const tasks = await getTasks(userId);
+        if (Number.isNaN(page) || page < 1) throw new BadRequestError("Invalid page");
+        if (Number.isNaN(limit) || limit < 1 || limit > 50) throw new BadRequestError("Invalid limit");
 
-        res.status(200).json(tasks);
+        const filters = {
+            status: req.query.status,
+            prioridade: req.query.prioridade,
+        };
+
+        const result = await listTasks(userId, { page, limit, filters });
+
+        return res.status(200).json(result);
     } catch (error) {
         next(error)
     }
